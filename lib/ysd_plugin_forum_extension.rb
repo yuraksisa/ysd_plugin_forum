@@ -6,6 +6,20 @@ require 'ysd-plugins_viewlistener' unless defined?Plugins::ViewListener
 module Huasi
 
   class ForumExtension < Plugins::ViewListener
+
+    # ========= Page Building ============
+    
+    #
+    # It gets the style sheets defined in the module
+    #
+    # @param [Context]
+    #
+    # @return [Array]
+    #   An array which contains the css resources used by the module
+    #
+    def page_style(context={})
+      ['/mail/css/mail.css']     
+    end
             
     # ========= Menu =====================
 
