@@ -1,0 +1,162 @@
+<%= include('entity-management') %>
+
+<!-- Renders the element description -->
+<script type="text/tmpl" id="elements_description">
+
+    <p>Esta página muestra la lista de foros. Un <strong>foro</strong> es una herramienta para realizar discusiones en línea, permitiendo al usuario 
+       poder expresar su idea o comentario respecto al tema tratado.</p>
+
+</script>
+
+<!-- Renders the elements container -->
+<script type="text/tmpl" id="elements_container_template">
+
+  <table id="elements_table" class="table">
+     <thead class="table-header">
+       <tr>
+         <th class="table-header-title" scope="col" style="width:20%">Id</th>
+         <th class="table-header-title" scope="col" style="width:30%">Name</th>
+         <th class="table-header-title" scope="col" style="width:50%">Description</th>
+       </tr>
+     </thead>
+     <tbody id="elements_tbody" class="table-tbody">             
+     </tbody>
+  </table>
+
+</script>
+
+<!-- Renders one element in the elements list view -->
+        
+<script type="text/tmpl" id="elements_list_template">
+
+    <tr class="table-row element-navigation-detail" rel="<%%= index %>" id="element_row_<%%=index%>">
+      <td class="table-cell"><%%= entity.address %></td>
+      <td class="table-cell"><%%= entity.name %></td>
+      <td class="table-cell"><%%= entity.description %></td>
+    </tr>
+
+</script>
+
+<!-- Renders one element in the element view (full detailed) -->
+
+<script type="text/tmpl" id="element_template">
+
+     <div class="element_template" style="overflow:hidden">
+       <div class="entity-field"><div class="entity-fieldlabel">Id</div> <div class="entity-fieldvalue"><span class="entity-id"><%%= entity.address %></span></div> </div>
+       <div class="entity-field"><div class="entity-fieldlabel">Name</div> <div class="entity-fieldvalue"><%%= entity.name %></div></div>
+       <div class="entity-field"><div class="entity-fieldlabel">Description</div> <div class="entity-fieldvalue"><%%=entity.description%></div></div>            
+     </div>
+
+</script>
+
+<!-- Renders the form to edit an element -->
+
+<script type="text/tmpl" id="element_template_form">
+              
+     <form name="element">
+        
+        <div class="top-navigation-bar navigation-bar">
+             <h2 class="form-title">Forums</h2>
+             <div class="navigation-bar-nav-buttons">
+             </div>
+        </div>        
+
+        <div class="form-fields">
+        
+          <div class="formrow">
+            <label for="address" class="fieldtitle">Id <span class="mandatoryfield">*</span></label>
+            <input type="text" maxlength="18" id="address" name="address" class="fieldcontrol" <%% if (entity) { %> value="<%%= entity.address %>" <%% } %> />
+          </div>
+
+          <div class="formrow">
+            <label for="name" class="fieldtitle">Name</label>
+            <input type="text" maxlength="60" id="name" name="name" class="fieldcontrol" <%% if (entity) { %> value="<%%= entity.name %>" <%% } %> />
+          </div>
+
+          <div class="formrow">
+            <label for="description" class="fieldtitle">Description</label>
+            <textarea name="description" id="description" class="fieldcontrol"><%% if (entity) { %><%%=entity.description %><%% } %></textarea>
+          </div>
+          <p style="text-align:right"> <span id="description_length"></span> <%= t.available_chars %> </p>
+          
+          <input type="hidden" name="type" id="type" value="forum"/>
+                
+        </div>
+        
+        <div class="bottom-navigation-bar navigation-bar">
+             <div class="navigation-bar-nav-buttons">
+                <input type="button" class="cancel-entity-button action-button entity-management-button" value="Cancel"/>
+                <%% if (entity) { %>
+                  <input type="submit" class="update-entity-button action-button entity-management-button" value="Update"/>
+                <%% } 
+                   else { %>
+                  <input type="submit" class="create-entity-button action-button entity-management-button" value="Create"/>
+                <%% } %>
+             </div>
+        </div>
+     
+     </form>
+     
+
+</script>
+
+
+<script type="text/javascript">
+ 
+  function ForumHook() {
+ 	   
+    this.entityKey = function(entity) {
+      return entity.address;
+    }
+
+    this.onEdit = function(entity) {
+      $('#address').attr('readonly', true);
+      $('#name').focus();  	
+      this.configForm(entity);
+    };
+  
+    this.onNew = function() {
+  	  $('#address').focus();
+  	  this.configForm(null);
+    }
+    
+    this.configForm = function(entity) {
+             
+         // Limit the text area length
+         YsdForms.limit_text_area_content_size(document.getElementById('description'), 256, 
+            function (content_remain) {
+              document.getElementById('description_length').innerHTML = '<strong>' + content_remain + '</strong>';
+            }
+         );    
+    	
+    }
+    
+    this.adaptFormData = function(data) {
+    
+      if (document.getElementById('address').getAttribute('readonly') == null) {
+      	
+      	data.address = 'f-' + data.address; // Asign the prefix to identify the forum
+      	
+      }
+      
+      return data;
+    	
+    }
+  	
+  };
+  
+  var urls = { 
+  	           query_url  : '/forums',
+    	       create_url : '/forum',
+  	           update_url : '/forum',
+  	           delete_url : '/forum',
+  	           get_url    : '/forum'
+  	         };
+  
+  var forumHook = new ForumHook();
+  var forumsManager = new EntityManagement(urls, 'forum', 12, forumHook);
+ 
+  $('.entity-title').html('Forums');
+  
+  
+</script>

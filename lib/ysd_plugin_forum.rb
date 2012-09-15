@@ -1,3 +1,6 @@
-require 'sinatra/ysd_plugin_forum_middleware'
+require 'sinatra/ysd_sinatra_forum'
+require 'sinatra/ysd_sinatra_forum_management'
+require 'sinatra/ysd_sinatra_forum_rest_api'
+require 'sinatra/ysd_sinatra_forum_conversation_rest_api'
 require 'ysd_plugin_forum_extension'
 require 'ysd_plugin_forum_init'

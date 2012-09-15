@@ -1,0 +1,77 @@
+<%= include('entity-management') %>
+
+<!-- Renders the elements container -->
+<script type="text/tmpl" id="elements_container_template">
+
+  <div class="elements_definition">
+    <p>Esta página muestra la lista de foros. Un <strong>foro</strong> es una herramienta para realizar discusiones en línea, permitiendo al usuario 
+       poder expresar su idea o comentario respecto al tema tratado.</p>
+    <p>Acceda al foro que desee para leer los mensajes, participar en las discusiones iniciadas por otros usuarios o iniciar una nueva discusión.</p>
+  </div>
+
+  <table id="elements_table" class="table">
+     <thead class="table-header">
+       <tr>
+         <th class="table-header-title" scope="col" style="width:40%">Forum</th>
+         <th class="table-header-title" scope="col" style="width:60%">Description</th>
+       </tr>
+     </thead>
+     <tbody id="elements_tbody" class="table-tbody">             
+     </tbody>
+  </table>
+
+</script>
+
+<!-- Renders one element in the elements list view -->
+        
+<script type="text/tmpl" id="elements_list_template">
+
+    <tr class="table-row" rel="<%%= index %>" id="element_row_<%%=index%>">
+      <td class="table-cell"><a href="/forum/<%%=entity.address%>"><%%= entity.name %></a></td>
+      <td class="table-cell" style="position:relative; top:1px"><%%= entity.description %></td>
+    </tr>
+
+</script>
+
+<!-- Renders one element in the element view (full detailed) -->
+
+<script type="text/tmpl" id="element_template">
+
+</script>
+
+<!-- Renders the form to edit an element -->
+
+<script type="text/tmpl" id="element_template_form">
+
+</script>
+
+
+<script type="text/javascript">
+ 
+  function ForumHook() {
+ 	   
+  	
+    this.onRenderEntities = function(entities) {
+    
+      $('.new-entity-button').hide();	
+      $('.reload-entities-button').hide();
+      $('.elements-summary').hide();
+      $('.navigation-button').hide();
+      $('.bottom-navigation-bar').hide();
+      $('.navigation-bar-nav-buttons').hide();
+      	
+    }
+  	
+  };
+  
+  var urls = {
+               query_url  : '/forums'
+             };
+             
+  var forumHook = new ForumHook();
+  var forums = new EntityManagement(urls, 'forum', 12, forumHook);
+ 
+  $('.entity-title').html('Forums');
+  
+  
+</script>

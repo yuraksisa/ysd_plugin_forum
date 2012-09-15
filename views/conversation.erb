@@ -1,0 +1,294 @@
+<script>
+
+  function ConversationManager(conversation_summary) {
+  	
+  	this.model = new ConversationModel(conversation_summary);
+  	this.controller = new ConversationController(this.model);
+  	this.view = new ConversationView(this.model, this.controller);
+  	
+  	this.view.render();
+  	
+  }
+  
+  function ConversationModel(conversation_summary) { /* The Model */
+  	
+  	this.state = 'none';
+  	this.conversation_summary = conversation_summary; /* It holds the conversation id received in the constructor */
+  	this.conversation = null;               /* It holds the full conversation retrieved */
+  	this.events = new YSD.EventTarget(); 
+
+  	/* ------- Event listeners ---------- */
+  	
+  	this.addListener = function(type, listener) { /* addListener */
+  	  this.events.addEventListener(type, listener);	
+  	}
+  	
+  	this.removeListener = function(type, listener) { /* removeListener */
+  	  this.events.removeEventListener(type, listener);  	  
+  	}
+  	
+  	/* -------- Business methods ---------- */
+  	
+  	this.retrieve_conversation = function() {
+  		
+  	   var self = this;
+  		
+  	   $.ajax({
+  	   	       type: 'GET',
+  	   	       url : '/mail/conversation/'+this.conversation_summary.conversation_id,
+  	   	       contentType: 'application/json; charset=utf-8',
+  		       dataType : 'json',
+  		       cache: false,
+  	   	       success: function(data, statusText, jqXHR) {
+  	   	          self.conversation = data;
+  	   	          self.change_state('conversation_retrieved_success');     	
+  	   	       },
+  	   	       error: function(data, statusText, jqXHR) {
+  	   	       	  self.change_state('conversation_retrieved_error');
+  	   	       }
+  	   });
+  		
+  	}
+  	
+  	this.reply = function(message) {
+  	
+  	    delete message['send'];
+  	   
+  	    var self = this;
+  	  	var json_request = JSON.stringify(message);
+  		
+  		$.ajax( {
+  			type   : 'POST',
+  			url    : '/mail/message',
+  			data   : json_request,
+  			data_type : 'application/json; charset=utf-8',  			
+  			content_type : 'json',
+  			success : function(data, textStatus, jqXHR) {
+  			  self.update_conversation(data);
+  			  self.change_state('reply_send_success');	
+  			},
+  			error: function(data, textStatus, jqXHR) {
+  			  self.response_status = textStatus;
+  			  self.change_state('reply_send_error');
+  			}
+  		});
+  	
+  		
+  	}
+  	
+  	this.update_conversation = function(new_message) {
+  	  	  
+  	  this.conversation.messages.push(new_message);
+  	  this.conversation.total += 1;  
+  	  
+  	  this.events.fireEvent( {type: 'conversation_updated', conversation: this.conversation} );	
+  		
+  		
+  	}
+  	
+  	this.change_state = function(action) {
+  	
+  	  switch (action) {
+  	  	
+  	  	case 'conversation_retrieved_success':
+  	  	  
+  	  	  this.state = 'conversation_loaded';
+  	  	  break;
+  	  	
+  	  	case 'conversation_retrieved_error':
+  	  	
+  	  	  this.state = 'conversation_loaded_error';
+  	  	  break;
+  	  	  
+  	  	case 'reply_send_success':
+  	  	  
+  	  	  this.state = 'reply_message_sent';
+  	  	  break;
+  	  	  
+  	  	case 'reply_send_error':
+  	  	 
+  	  	  this.state = 'reply_message_sent_error'
+  	  	  break;
+  	  	
+  	  }
+  	  
+  	  this.events.fireEvent( {type:'state_changed', state: this.state});
+  		
+  	}
+  	
+  }
+  
+  function ConversationController(model) { /* The Controller */
+  
+    this.model = model;
+  
+    this.replyButtonClick = function() {
+      var message = $($('.reply-button')[0].form).formParams(true);
+      this.model.reply(message);	
+    }
+  	
+  }
+  
+  function ConversationView(model, controller) { /* The View */
+  	
+  	this.model = model;                   /* Reference to the model */
+  	this.controller = controller;         /* Reference to the controller */
+  	this.tmpl_conversation_holder = null; /* The template to render the conversation holder */
+  	this.tmpl_conversation_item = null;   /* The template to render a conversation message */
+  	
+  	this.configure_events = function() {
+  	  var self = this;  	
+  	  this.model.addListener('state_changed', 
+  	                       function(event) { 
+  	                       	 self.state_changed(event); 
+  	                       });  	
+  	}
+  
+    this.configure_reply_form = function() {
+    	
+      var self = this;	
+    	
+      // Applies the editor to the message text area	
+      YsdForms.htmlEditor('.texteditor');	
+    	
+      // Limit the text area length
+      YsdForms.limit_text_area_content_size(document.getElementById('message'), 1024, 
+          function (content_remain) {
+           document.getElementById('message_length').innerHTML = '<strong>' + content_remain + '</strong>';
+          }
+      );       	
+    	
+  	  $('.reply-button').bind('click', 
+  	                        function(event) {
+  	                          self.controller.replyButtonClick();	
+  	                        });    	
+    	
+    }
+  
+    this.configure_events();
+  	
+  	this.state_changed = function(event) {
+  		
+  	  switch (event.state) {	
+  		
+  	    case 'conversation_loaded':
+  	     this.load_conversation(); 
+  	     break;
+  	   
+  	    case 'conversation_loaded_error':	
+  	     this.notify_user('Error','Error retrieving conversation');
+  	     break;	
+  	   
+  	    case 'reply_message_sent':
+  	     this.update_conversation();
+  	     break;
+  	   
+  	    case 'reply_message_sent_error':
+  	     this.notify_user('Error','Error responding message');
+  	     break; 
+  	     
+  	  }
+  	}
+  	
+  	this.render = function() { /* Show the conversation holder */
+  	
+  	  if (this.tmpl_conversation_holder == null) {
+  	  	this.tmpl_conversation_holder = tmpl('message_detail_script');	
+  	  }	
+  	  
+  	  var message_detail = document.getElementById('message_detail_message');
+  	  
+  	  message_detail.innerHTML = this.tmpl_conversation_holder({message: this.model.conversation_summary, self: this }); 	  
+  	  
+  	  this.configure_reply_form();
+
+	  this.model.retrieve_conversation(); // Order to retrieve the conversation
+  	    	
+  	}
+  	
+  	this.load_conversation = function () { /* Show the full conversation */
+  	
+  	  var conversation = this.model.conversation;
+  		
+  	  if (conversation == null || conversation.messages == null)
+  	  {
+  	    return;	
+  	  }	
+  		
+  	  if (this.tmpl_conversation_item == null) {
+  	  	this.tmpl_conversation_item = tmpl('conversation_item_script');	
+  	  }	
+  	  
+  	  var conversation_element = document.getElementById('message_detail_conversation_messages');
+  	  var messageHtml = '';
+  	  for (var index in conversation.messages){
+  	    messageHtml += this.tmpl_conversation_item({message:conversation.messages[index], self:this, index: index});	
+  	  }
+  	  conversation_element.innerHTML = messageHtml;
+  	  
+  	},
+  	
+  	this.update_conversation = function () { /* Update the conversation with the last sent message */
+  	  	  
+  	  if (this.tmpl_conversation_item == null) {
+  	  	this.tmpl_conversation_item = tmpl('conversation_item_script');	
+  	  }	
+  	  
+  	  var conversation_element = document.getElementById('message_detail_conversation_messages');
+  	    	  
+  	  // Adds the last conversation message
+  	  conversation_element.innerHTML += this.tmpl_conversation_item({message:this.model.conversation.messages[this.model.conversation.messages.length-1], self:this, index:this.model.conversation.messages.length-1 });
+  	    	  	
+  	  // Clear the reply message
+  	  var reply_message = document.getElementById('message');
+  	  $(reply_message).val('');  	  	
+  	    	  	
+  	}
+  	
+  	this.notify_user = function(title, message) {
+  		
+        $("<div title='" + title + "'>" + message + "</div>").dialog( { height: 160, modal: true,     	 
+       	        buttons: {
+       	            Ok: function() 
+       	            {
+				   	  $( this ).dialog( "close" );
+				    }
+				}
+           	  });   	 	
+  		
+  	}   	
+    
+    this.format_message_date_time = function(received_date) { /* format the received date-time */
+
+       if (received_date == null) {
+       	 return '';
+       }
+    
+       var date = Date.parse(received_date);
+       var c_date = Date.parse(received_date).clearTime();    
+       
+       return Date.equals(c_date,Date.today())?date.toString("HH:mm"):date.getFullYear()==c_date.getFullYear()?date.toString("d MMM, HH:mm"):date.toString("d-MM-yy, HH:mm")	
+    
+    }
+    
+    this.format_sender_url = function(sender) { /* Format the sender */
+    
+      <% if options.mail_include_sender_url %> 
+        var sender_url = "<%= options.mail_sender_url%>".replace('{sender}', sender);
+        return '<a href="' + sender_url + '" target="_blank">' + sender + '</a>';
+      <%else%> 
+        return sender; 
+      <%end%>
+    
+    }
+  
+    this.format_message = function(message) { /* Format the message */
+    
+      return message.replace(/\n/gi,'<br/>'); /* .replace(/\s/gi,'&nbsp;');    */
+    
+    }
+
+  	
+  }
+  
+</script>

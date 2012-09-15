@@ -21,6 +21,20 @@ module Huasi
       ['/mail/css/mail.css']     
     end
             
+    #
+    # It gets the scripts used by the module
+    #
+    # @param [Context]
+    #
+    # @return [Array]
+    #   An array which contains the css resources used by the module
+    #
+    def page_script(context={})
+    
+      ["/js/jquery.placeholder.js"]    
+    
+    end            
+            
     # ========= Menu =====================
 
     #

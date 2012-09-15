@@ -1,0 +1,243 @@
+<%= include('entity-management') %>
+
+<%= include('conversation') %>
+
+<!-- Renders the element description -->
+<script type="text/tmpl" id="elements_description">
+  <p><%= forum.description %></p>
+</script>
+
+<!-- Renders the elements container -->
+
+<script type="text/tmpl" id="elements_container_template">
+
+  <table id="elements_table" class="table">
+     <thead class="table-header">
+       <tr>
+         <th class="table-header-title" scope="col" style="width:50%">Topic</th>
+         <th class="table-header-title" scope="col" style="width:10%; padding-right:10px">Replies</th>
+         <th class="table-header-title" scope="col" style="width:40%">Published date or last reply</th>
+       </tr>
+     </thead>
+     <tbody id="elements_tbody" class="table-tbody">             
+     </tbody>
+  </table>
+
+</script>
+
+<!-- Renders one element in the elements list view -->
+        
+<script type="text/tmpl" id="elements_list_template">
+
+    <tr class="table-row element-navigation-detail" rel="<%%= index %>" id="element_row_<%%=index%>">
+      <td class="table-cell"><%%= entity.subject %></td>
+      <td class="table-cell" style="text-align:right; padding-right:10px"><%%= entity.conversation_number>0?entity.conversation_number-1:0 %></td>
+      <td class="table-cell"><%%= self.model.entityHooks[0].format_date_time(entity.received_date) %>, <%%= entity.sender_id %></td>
+    </tr>
+
+</script>
+
+<!-- Renders one element in the element view (full detailed) -->
+
+<script type="text/tmpl" id="element_template">
+
+     <div class="element_template" style="overflow:hidden">
+
+        <div id="message_detail_message"></div>
+
+     </div>
+
+</script>
+
+<!-- Renders the form to edit an element -->
+
+<script type="text/tmpl" id="element_template_form">
+              
+     <form name="element">
+        
+        <div class="top-navigation-bar navigation-bar">
+             <h2 class="form-title">New thread</h2>
+             <div class="navigation-bar-nav-buttons">
+             </div>
+        </div>        
+
+        <div class="form-fields">
+        
+          <input type="hidden" name="mailbox[address]" id="mailbox[address]" value="<%%=self.model.configuration.parentId%>"/>
+          <input type="hidden" name="folder" id="folder" value="in"/>
+          <input type="hidden" name="sender[address]" id="sender[address]" value="<%=user.username%>"/>
+          <input type="hidden" name="sender[name]" id="sender[name]" value="<%=user.full_name%>"/>
+          <input type="hidden" name="sender_name" id="sender_name" value="<%=user.full_name%>"/>
+                  
+          <div class="formrow">
+            <label for="subject" class="fieldtitle">Subject</label>
+            <input type="text" maxlength="50" id="subject" name="subject" class="fieldcontrol"/>
+          </div>
+
+          <div class="formrow">
+            <label for="message" class="fieldtitle">Message</label>
+            <textarea name="message" id="message" class="fieldcontrol texteditor" rows="5"></textarea>
+          </div>
+          <p style="text-align:right"> <span id="message_length"></span> <%= t.available_chars %> </p>
+                
+        </div>
+        
+        <div class="bottom-navigation-bar navigation-bar">
+             <div class="navigation-bar-nav-buttons">
+                <input type="button" class="cancel-entity-button action-button entity-management-button" value="Cancel"/>
+                <input type="submit" class="create-entity-button action-button entity-management-button" value="Publish"/>
+             </div>
+        </div>
+     
+     </form>
+     
+
+</script>
+
+<!-- ================= CONVERSATION RENDERING =================== -->
+
+<!-- Renders the full conversation -->
+
+<script type="text/tmpl" id="message_detail_script">
+
+       <div id="message_detail_header"> 
+         <div>
+           <span class="message_detail_subject"><a href="/forum/<%=forum.address%>/<%%=message.conversation_id%>"><%%= message.subject %></a></span>          
+         </div>
+       </div>
+   
+       <!-- The conversation -->
+    
+       <div id="message_detail_conversation">
+         <div id="message_detail_conversation_messages">
+         </div>   
+       </div>   
+  
+       <!-- Response -->
+        
+       <div id="message_response">
+  
+         <form id="reply_message_form" name="reply_message_form">
+  
+           <div>
+             <textarea id="message" name="message" rows="10" placeholder="<%= t.reply_message_form.reply%>" class="texteditor"></textarea>
+           </div>
+           <p style="text-align:right"> <span id="message_length"></span> <%= t.available_chars %> </p>
+           
+           <div class="formrow-botonera">
+             <input type="button" id="send" name="send" value="<%= t.reply_message_form.reply_button %>" class="reply-button action-button entity-management-button"/>   
+           </div>  
+           
+           <input type="hidden" name="folder" id="folder" value="in"/>
+           <input type="hidden" name="subject" value="<%%=message.subject %>"/> 
+           <input type="hidden" name="receiver[address]" value="<%%= message.mailbox_id %>"/>
+           <input type="hidden" name="sender[address]" id="sender[address]" value="<%=user.username%>"/>
+           <input type="hidden" name="sender[name]" id="sender[name]" value="<%=user.full_name%>"/>
+           <input type="hidden" name="sender_name" id="sender_name" value="<%=user.full_name%>"/>
+           <input type="hidden" name="reply[id]" value="<%%= message.id %>"/>
+         
+        </form> 
+    
+      </div>
+  
+      <div id="message_detail_footer">
+      </div>
+
+</script>
+
+<!-- Renders a conversation message -->
+
+<script type="text/tmpl" id="conversation_item_script">
+
+  <div class="conversation_item <%% if (message.sender_id == '<%=user.username%>'){%>conversation_item_own<%% } else {%> conversation_item_other<%% } %>">
+    <div class="conversation_item_header">
+        <span class="message_detail_sender"><%%= self.format_sender_url(message.sender_id)%></span> 
+        <span class="message_detail_date"><%%= self.format_message_date_time(message.received_date) %></span>
+    </div>
+    <div class="conversation_item_body">
+        <%%= self.format_message(message.message) %>
+    </div>
+    <div class="conversation_item_footer">
+    </div>
+  </div>
+  
+</script>
+
+
+
+
+<script type="text/javascript">
+ 
+  function ForumThreadHook() {
+ 	   
+    this.entityKey = function(entity) {
+      return entity.conversation_id;
+    }
+  
+    this.onNew = function() {
+  	  $('#subject').focus();
+  	  this.configForm(null);
+    }
+    
+    this.onRenderEntities = function(entities) {
+    	
+      $('.edit-entity-button').hide(); // Hides the edit element (the conversation can not be edited)	
+      $('.new-entity-button').html('New thread');
+    	
+    }
+    
+    this.onRender = function(entity) {
+                        
+      var self = this;
+      var conversation = new ConversationManager(entity);
+      conversation.model.addListener('conversation_updated', function(event) {
+      	                                self.updateConversation(event.conversation);
+                                     });      
+    }
+    
+   this.updateConversation = function(conversation) {
+   	
+   	console.log(conversation);
+   	
+   }
+        
+   this.configForm = function(entity) {
+             
+         // Limit the text area length
+         YsdForms.limit_text_area_content_size(document.getElementById('message'), 1024, 
+            function (content_remain) {
+              document.getElementById('message_length').innerHTML = '<strong>' + content_remain + '</strong>';
+            }
+         );    
+    	
+   }
+    
+   this.format_date_time = function(received_date) { /* format the received date-time */
+
+       if (received_date == null) {
+       	 return '';
+       }
+    
+       var date = Date.parse(received_date);
+       
+       return date.toString("d.MM.yyyy HH:mm");
+       
+   }
+    
+      	
+  };
+  
+  var urls = { 
+  	     query_url  : '/forum/messages',
+    	 create_url : '/forum/new-thread',
+    	 update_url : '/forum/reply',
+  	     get_url    : '/forum/thread'
+  	   };
+
+  forumThreadHook = new ForumThreadHook();
+  forumThread = new EntityManagement(urls, 'forum thread', 12, forumThreadHook, {parent_filtered:true});
+ 
+  $('.entity-title').html('<%=forum.name%>');
+  
+  
+</script>
