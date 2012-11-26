@@ -12,8 +12,7 @@ Gem::Specification.new do |s|
   
   s.add_runtime_dependency "ysd_md_mail"                  # Model (forums)
 
-  s.add_runtime_dependency "ysd_plugin_site"              # Page serving
-  s.add_runtime_dependency "ysd_plugin_entitymanagement"  # Framework
+  s.add_runtime_dependency "ysd_plugin_cms"               # Page serving
   s.add_runtime_dependency "ysd_plugin_mail"              # Model messages through REST API
   
   s.add_runtime_dependency "ysd_core_plugins"
