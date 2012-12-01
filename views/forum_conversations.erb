@@ -3,6 +3,10 @@
 <%= include('conversation') %>
 
 <!-- Renders the element description -->
+<script type="text/tmpl" id="elements_title">
+  <h2 class="entity-title"><%=forum.name%></h2>
+</script>
+
 <script type="text/tmpl" id="elements_description">
   <p><%= forum.description %></p>
 </script>
@@ -32,7 +36,7 @@
     <tr class="table-row element-navigation-detail" rel="<%%= index %>" id="element_row_<%%=index%>">
       <td class="table-cell"><%%= entity.subject %></td>
       <td class="table-cell" style="text-align:right; padding-right:10px"><%%= entity.conversation_number>0?entity.conversation_number-1:0 %></td>
-      <td class="table-cell"><%%= self.model.entityHooks[0].format_date_time(entity.received_date) %>, <%%= entity.sender_id %></td>
+      <td class="table-cell"><%%= self.model.entityHooks[0].format_date_time(entity.received_date) %> <%%= entity.sender_id %></td>
     </tr>
 
 </script>
@@ -54,13 +58,7 @@
 <script type="text/tmpl" id="element_template_form">
               
      <form name="element">
-        
-        <div class="top-navigation-bar navigation-bar">
-             <h2 class="form-title">New thread</h2>
-             <div class="navigation-bar-nav-buttons">
-             </div>
-        </div>        
-
+  
         <div class="form-fields">
         
           <input type="hidden" name="mailbox[address]" id="mailbox[address]" value="<%%=self.model.configuration.parentId%>"/>
@@ -168,6 +166,8 @@
 
 <script type="text/javascript">
  
+require(['jquery','YSDEntityManagement','YSDForms', 'ConversationManager'],function($, EntityManagement, YSDForms, ConversationManager) { 
+
   function ForumThreadHook() {
  	   
     this.entityKey = function(entity) {
@@ -204,7 +204,7 @@
    this.configForm = function(entity) {
              
          // Limit the text area length
-         YsdForms.limit_text_area_content_size(document.getElementById('message'), 1024, 
+         YSDForms.limit_text_area_content_size(document.getElementById('message'), 1024, 
             function (content_remain) {
               document.getElementById('message_length').innerHTML = '<strong>' + content_remain + '</strong>';
             }
@@ -223,21 +223,19 @@
        return date.toString("d.MM.yyyy HH:mm");
        
    }
-    
-      	
+          	
   };
   
   var urls = { 
   	     query_url  : '/forum/messages',
-    	 create_url : '/forum/new-thread',
-    	 update_url : '/forum/reply',
+      	 create_url : '/forum/new-thread',
+      	 update_url : '/forum/reply',
   	     get_url    : '/forum/thread'
   	   };
 
   forumThreadHook = new ForumThreadHook();
   forumThread = new EntityManagement(urls, 'forum thread', 12, forumThreadHook, {parent_filtered:true});
- 
-  $('.entity-title').html('<%=forum.name%>');
-  
-  
+
+});
+
 </script>

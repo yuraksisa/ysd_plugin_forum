@@ -1,5 +1,7 @@
 <script>
 
+define('ConversationManager', ['jquery', 'YSDEventTarget', 'ysdhtmleditor', 'YSDForms', 'ysdtemplate', 'YSDjson2' , 'jquery.formparams', 'jquery.ui', 'datejs'], function($, EventTarget, htmleditor, YSDForms, tmpl){
+
   function ConversationManager(conversation_summary) {
   	
   	this.model = new ConversationModel(conversation_summary);
@@ -15,7 +17,7 @@
   	this.state = 'none';
   	this.conversation_summary = conversation_summary; /* It holds the conversation id received in the constructor */
   	this.conversation = null;               /* It holds the full conversation retrieved */
-  	this.events = new YSD.EventTarget(); 
+  	this.events = new EventTarget(); 
 
   	/* ------- Event listeners ---------- */
   	
@@ -37,8 +39,8 @@
   	   	       type: 'GET',
   	   	       url : '/mail/conversation/'+this.conversation_summary.conversation_id,
   	   	       contentType: 'application/json; charset=utf-8',
-  		       dataType : 'json',
-  		       cache: false,
+  		         dataType : 'json',
+  		         cache: false,
   	   	       success: function(data, statusText, jqXHR) {
   	   	          self.conversation = data;
   	   	          self.change_state('conversation_retrieved_success');     	
@@ -52,10 +54,10 @@
   	
   	this.reply = function(message) {
   	
-  	    delete message['send'];
+  	  delete message['send'];
   	   
-  	    var self = this;
-  	  	var json_request = JSON.stringify(message);
+  	  var self = this;
+  	  var json_request = JSON.stringify(message);
   		
   		$.ajax( {
   			type   : 'POST',
@@ -149,10 +151,10 @@
       var self = this;	
     	
       // Applies the editor to the message text area	
-      YsdForms.htmlEditor('.texteditor');	
+      htmlEditor('.texteditor');	
     	
       // Limit the text area length
-      YsdForms.limit_text_area_content_size(document.getElementById('message'), 1024, 
+      YSDForms.limit_text_area_content_size(document.getElementById('message'), 1024, 
           function (content_remain) {
            document.getElementById('message_length').innerHTML = '<strong>' + content_remain + '</strong>';
           }
@@ -202,7 +204,7 @@
   	  
   	  this.configure_reply_form();
 
-	  this.model.retrieve_conversation(); // Order to retrieve the conversation
+	    this.model.retrieve_conversation(); // Order to retrieve the conversation
   	    	
   	}
   	
@@ -264,8 +266,16 @@
        	 return '';
        }
     
-       var date = Date.parse(received_date);
-       var c_date = Date.parse(received_date).clearTime();    
+       var date = received_date;
+       var c_date = null;
+
+       if (received_date instanceof String) {
+         date = new Date(received_date);
+         c_date = (new Date(date)).clearTime();
+       }
+       else {
+         c_date =  (new Date(date.getTime())).clearTime();
+       }
        
        return Date.equals(c_date,Date.today())?date.toString("HH:mm"):date.getFullYear()==c_date.getFullYear()?date.toString("d MMM, HH:mm"):date.toString("d-MM-yy, HH:mm")	
     
@@ -290,5 +300,8 @@
 
   	
   }
-  
+
+  return ConversationManager;
+
+});  
 </script>

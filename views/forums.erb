@@ -1,13 +1,19 @@
 <%= include('entity-management') %>
 
-<!-- Renders the elements container -->
-<script type="text/tmpl" id="elements_container_template">
+<script type="text/tmpl" id="elements_title">
+  <h2 class="entity-title">Foros</h2>
+</script>
 
-  <div class="elements_definition">
+<script type="text/tmpl" id="elements_description">
+
     <p>Esta página muestra la lista de foros. Un <strong>foro</strong> es una herramienta para realizar discusiones en línea, permitiendo al usuario 
        poder expresar su idea o comentario respecto al tema tratado.</p>
     <p>Acceda al foro que desee para leer los mensajes, participar en las discusiones iniciadas por otros usuarios o iniciar una nueva discusión.</p>
-  </div>
+
+</script>
+
+<!-- Renders the elements container -->
+<script type="text/tmpl" id="elements_container_template">
 
   <table id="elements_table" class="table">
      <thead class="table-header">
@@ -47,7 +53,9 @@
 
 
 <script type="text/javascript">
- 
+
+require(['jquery','YSDEntityManagement'],function($, EntityManagement) { 
+
   function ForumHook() {
  	   
   	
@@ -71,7 +79,6 @@
   var forumHook = new ForumHook();
   var forums = new EntityManagement(urls, 'forum', 12, forumHook);
  
-  $('.entity-title').html('Forums');
-  
+});
   
 </script>

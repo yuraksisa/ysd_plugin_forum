@@ -1,6 +1,9 @@
 <%= include('entity-management') %>
 
-<!-- Renders the element description -->
+<script type="text/tmpl" id="elements_title">
+  <h2 class="entity-title">Foros</h2>
+</script>
+
 <script type="text/tmpl" id="elements_description">
 
     <p>Esta página muestra la lista de foros. Un <strong>foro</strong> es una herramienta para realizar discusiones en línea, permitiendo al usuario 
@@ -55,12 +58,6 @@
               
      <form name="element">
         
-        <div class="top-navigation-bar navigation-bar">
-             <h2 class="form-title">Forums</h2>
-             <div class="navigation-bar-nav-buttons">
-             </div>
-        </div>        
-
         <div class="form-fields">
         
           <div class="formrow">
@@ -103,6 +100,7 @@
 
 <script type="text/javascript">
  
+require(['jquery','YSDEntityManagement','YSDForms'],function($, EntityManagement, YSDForms) { 
   function ForumHook() {
  	   
     this.entityKey = function(entity) {
@@ -123,7 +121,7 @@
     this.configForm = function(entity) {
              
          // Limit the text area length
-         YsdForms.limit_text_area_content_size(document.getElementById('description'), 256, 
+         YSDForms.limit_text_area_content_size(document.getElementById('description'), 256, 
             function (content_remain) {
               document.getElementById('description_length').innerHTML = '<strong>' + content_remain + '</strong>';
             }
@@ -134,9 +132,7 @@
     this.adaptFormData = function(data) {
     
       if (document.getElementById('address').getAttribute('readonly') == null) {
-      	
       	data.address = 'f-' + data.address; // Asign the prefix to identify the forum
-      	
       }
       
       return data;
@@ -147,7 +143,7 @@
   
   var urls = { 
   	           query_url  : '/forums',
-    	       create_url : '/forum',
+      	       create_url : '/forum',
   	           update_url : '/forum',
   	           delete_url : '/forum',
   	           get_url    : '/forum'
@@ -156,7 +152,6 @@
   var forumHook = new ForumHook();
   var forumsManager = new EntityManagement(urls, 'forum', 12, forumHook);
  
-  $('.entity-title').html('Forums');
   
-  
+});  
 </script>
