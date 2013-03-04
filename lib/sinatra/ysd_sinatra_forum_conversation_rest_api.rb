@@ -15,7 +15,6 @@ module Sinatra
             folder = 'in'
             page = params[:page] || 1
             
-            # It redirects to the conversation retrieving
             status, header, body = call! env.merge({"PATH_INFO" => "/mail/messages/#{mailbox}/#{folder}/page/#{page}", "REQUEST_METHOD" => 'GET'})    
                     
           end
@@ -27,9 +26,6 @@ module Sinatra
         #
         app.post "/forum/new-thread" do
               
-          puts "Creating a new thread"
-
-          # It redirects to the conversation post
           status, header, body = call! env.merge("PATH_INFO" => "/mail/message")                             
         
         end
@@ -39,9 +35,6 @@ module Sinatra
         #
         app.post "/forum/reply" do
         
-          puts "Replying a conversation"
-          
-          # It redirects to the conversation post
           status, header, body = call! env.merge("PATH_INFO" => "/mail/message")        
         
         end
@@ -50,8 +43,6 @@ module Sinatra
         # Get a conversation
         #
         app.get "/forum/thread/:id" do
-        
-          puts "Retrieving conversation : /mail/messages/in/#{params[:id]}"
         
           status, header, body = call! env.merge("PATH_INFO" => "/mail/messages/in/#{params[:id]}")
         

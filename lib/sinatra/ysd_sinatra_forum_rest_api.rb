@@ -1,6 +1,11 @@
-require 'ysd_md_mail'
+require 'json' unless defined?JSON
+require 'ysd_md_mail' unless defined?MailDataSystem
+
 module Sinatra
   module YSD
+    #
+    # Sinatra extension: Forum REST API
+    #
     module ForumRESTApi
    
       def self.registered(app)
@@ -12,7 +17,6 @@ module Sinatra
         
           data=MailDataSystem::MailBox.find_mailboxes_by_type(:forum)
   
-          # Prepare the result
           content_type :json
           data.to_json
         end
@@ -37,18 +41,12 @@ module Sinatra
         # Create a new forum
         #
         app.post "/forum" do
-        
-          puts "Creating forum"
-          
+                  
           request.body.rewind
           forum_request = JSON.parse(URI.unescape(request.body.read))
           
-          # Creates the new forum
           the_forum = MailDataSystem::MailBox.create(forum_request) 
           
-          puts "created forum : #{the_forum}"
-          
-          # Return          
           status 200
           content_type :json
           the_forum.to_json          
@@ -59,26 +57,18 @@ module Sinatra
         # Updates a forum
         #
         app.put "/forum" do
-        
-          puts "Updating forum"
-        
+                
           request.body.rewind
           forum_request = JSON.parse(URI.unescape(request.body.read))
           
-          # Updates the forum 
-          puts "forum address : #{forum_request['address']}"         
           the_forum = MailDataSystem::MailBox.get(forum_request['address'])
           the_forum.attributes=(forum_request)
           the_forum.save
-          
-          puts "updated forum : #{the_forum.to_json}"
                    
-          # Return          
           status 200
           content_type :json
           the_forum.to_json
-        
-        
+      
         end
         
         #

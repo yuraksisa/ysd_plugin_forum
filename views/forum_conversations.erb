@@ -45,51 +45,44 @@
 
 <script type="text/tmpl" id="element_template">
 
-     <div class="element_template" style="overflow:hidden">
-
-        <div id="message_detail_message"></div>
-
-     </div>
-
 </script>
 
 <!-- Renders the form to edit an element -->
 
 <script type="text/tmpl" id="element_template_form">
               
+     <%% if (entity) { %>
+     <div class="element_template" style="overflow:hidden">
+        <div id="message_detail_message"></div>
+     </div>
+     <%% } else { %> 
+
      <form name="element">
-  
         <div class="form-fields">
-        
           <input type="hidden" name="mailbox[address]" id="mailbox[address]" value="<%%=self.model.configuration.parentId%>"/>
           <input type="hidden" name="folder" id="folder" value="in"/>
           <input type="hidden" name="sender[address]" id="sender[address]" value="<%=user.username%>"/>
           <input type="hidden" name="sender[name]" id="sender[name]" value="<%=user.full_name%>"/>
           <input type="hidden" name="sender_name" id="sender_name" value="<%=user.full_name%>"/>
-                  
           <div class="formrow">
             <label for="subject" class="fieldtitle">Subject</label>
             <input type="text" maxlength="50" id="subject" name="subject" class="fieldcontrol"/>
           </div>
-
           <div class="formrow">
             <label for="message" class="fieldtitle">Message</label>
             <textarea name="message" id="message" class="fieldcontrol texteditor" rows="5"></textarea>
           </div>
           <p style="text-align:right"> <span id="message_length"></span> <%= t.available_chars %> </p>
-                
         </div>
-        
         <div class="bottom-navigation-bar navigation-bar">
-             <div class="navigation-bar-nav-buttons">
+             <div class="navigation-bar-crud-buttons">
                 <input type="button" class="cancel-entity-button action-button entity-management-button" value="Cancel"/>
                 <input type="submit" class="create-entity-button action-button entity-management-button" value="Publish"/>
              </div>
         </div>
-     
      </form>
+     <%% } %>
      
-
 </script>
 
 <!-- ================= CONVERSATION RENDERING =================== -->
@@ -186,7 +179,7 @@ require(['jquery','YSDEntityManagement','YSDForms', 'ConversationManager'],funct
     	
     }
     
-    this.onRender = function(entity) {
+    this.onEdit = function(entity) {
                         
       var self = this;
       var conversation = new ConversationManager(entity);

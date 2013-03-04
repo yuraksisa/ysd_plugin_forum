@@ -23,7 +23,7 @@ module Huasi
                      :options => {:title => app.t.forum_admin_menu.forum_management,
                                   :link_route => "/forum-management",
                                   :description => 'The forum admin tools to create and modify the forums.',
-                                  :module => 'cms',
+                                  :module => :forum,
                                   :weight => 3}}]      
    
     end
