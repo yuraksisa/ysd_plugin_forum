@@ -18,9 +18,15 @@
   <table id="elements_table" class="table">
      <thead class="table-header">
        <tr>
-         <th class="table-header-title" scope="col" style="width:50%">Topic</th>
-         <th class="table-header-title" scope="col" style="width:10%; padding-right:10px">Replies</th>
-         <th class="table-header-title" scope="col" style="width:40%">Published date or last reply</th>
+         <th class="table-header-title" scope="col" style="width:40%">
+           <%=t.forum_conversation.table.topic%>
+         </th>
+         <th class="table-header-title" scope="col" style="width:20%; text-align: center">
+           <%=t.forum_conversation.table.replies%>
+         </th>
+         <th class="table-header-title" scope="col" style="width:40%">
+           <%=t.forum_conversation.table.last_publisher%>
+         </th>
        </tr>
      </thead>
      <tbody id="elements_tbody" class="table-tbody">             
@@ -34,9 +40,16 @@
 <script type="text/tmpl" id="elements_list_template">
 
     <tr class="table-row element-navigation-detail" rel="<%%= index %>" id="element_row_<%%=index%>">
-      <td class="table-cell"><%%= entity.subject %></td>
-      <td class="table-cell" style="text-align:right; padding-right:10px"><%%= entity.conversation_number>0?entity.conversation_number-1:0 %></td>
-      <td class="table-cell"><%%= self.model.entityHooks[0].format_date_time(entity.received_date) %> <%%= entity.sender_id %></td>
+      <td class="table-cell">
+        <%%= entity.subject %>
+      </td>
+      <td class="table-cell" style="text-align: center; padding-right:10px">
+        <%%= entity.conversation_number>0?entity.conversation_number-1:0 %>
+      </td>
+      <td class="table-cell">
+        <div><%%= self.model.entityHooks[0].format_sender_url(entity) %></div>
+        <div><%%= self.model.entityHooks[0].format_date_time(entity.received_date)%></div>
+      </td>
     </tr>
 
 </script>
@@ -91,9 +104,11 @@
 
 <script type="text/tmpl" id="message_detail_script">
 
-       <div id="message_detail_header"> 
+       <div id="message_detail_header" class="bottom-margin bottom-space bottom-separator bigger_text"> 
          <div>
-           <span class="message_detail_subject"><a href="/forum/<%=forum.address%>/<%%=message.conversation_id%>"><%%= message.subject %></a></span>          
+           <span class="message_detail_subject bigger_text">
+              <a href="/forum/<%=forum.address%>/<%%=message.conversation_id%>"><%%= message.subject %></a>
+           </span>          
          </div>
        </div>
    
@@ -140,15 +155,29 @@
 
 <script type="text/tmpl" id="conversation_item_script">
 
-  <div class="conversation_item <%% if (message.sender_id == '<%=user.username%>'){%>conversation_item_own<%% } else {%> conversation_item_other<%% } %>">
-    <div class="conversation_item_header">
-        <span class="message_detail_sender"><%%= self.format_sender_url(message.sender_id)%></span> 
-        <span class="message_detail_date"><%%= self.format_message_date_time(message.received_date) %></span>
+  <div class="container_12 conversation_item <%% if (message.sender_id == '<%=user.username%>'){%>conversation_item_own<%% } else {%> conversation_item_other<%% } %>">
+
+    <div class="grid_1">
+      <%% if (message.sender && message.sender.photo_url_tiny) { %>
+      <img class="rounded profile-img-tiny" src="<%%=message.sender.photo_url_tiny%>"/>
+      <%% } else { %>
+      <img class="rounded profile-img-tiny" src="<%=settings.profile_default_photo%>"/>
+      <%% } %>
     </div>
-    <div class="conversation_item_body">
-        <%%= self.format_message(message.message) %>
-    </div>
-    <div class="conversation_item_footer">
+    <div class="grid_11">
+      <div class="left-space">
+        <div class="conversation_item_header">
+          <span class="message_detail_sender"><%%= self.format_sender_url(message.sender)%></span> 
+        </div>
+        <div class="conversation_item_body">
+          <%%= self.format_message(message.message) %>
+        </div>
+        <div class="conversation_item_footer">
+          <span class="message_detail_date smaller_text less_contrast_text">
+            <%%= self.format_message_date_time(message.received_date) %>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -175,7 +204,7 @@ require(['jquery','YSDEntityManagement','YSDForms', 'ConversationManager'],funct
     this.onRenderEntities = function(entities) {
     	
       $('.edit-entity-button').hide(); // Hides the edit element (the conversation can not be edited)	
-      $('.new-entity-button').html('New thread');
+      $('.new-entity-button').html('<%= t.forum_conversation.new_thread %>');
     	
     }
     
@@ -216,7 +245,11 @@ require(['jquery','YSDEntityManagement','YSDForms', 'ConversationManager'],funct
        return date.toString("d.MM.yyyy HH:mm");
        
    }
-          	
+    
+   this.format_sender_url = function(message) {
+       return '<a href="/profile/' + message.sender.address + '">' + (message.sender.full_name || message.sender.adress)+ '</a>';
+   }
+
   };
   
   var urls = { 

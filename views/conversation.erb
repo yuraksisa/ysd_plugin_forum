@@ -183,6 +183,7 @@ define('ConversationManager', ['jquery', 'YSDEventTarget', 'ysdhtmleditor', 'YSD
   	   
   	    case 'reply_message_sent':
   	     this.update_conversation();
+
   	     break;
   	   
   	    case 'reply_message_sent_error':
@@ -242,8 +243,7 @@ define('ConversationManager', ['jquery', 'YSDEventTarget', 'ysdhtmleditor', 'YSD
   	  conversation_element.innerHTML += this.tmpl_conversation_item({message:this.model.conversation.messages[this.model.conversation.messages.length-1], self:this, index:this.model.conversation.messages.length-1 });
   	    	  	
   	  // Clear the reply message
-  	  var reply_message = document.getElementById('message');
-  	  $(reply_message).val('');  	  	
+      document.forms['reply_message_form'].reset();
   	    	  	
   	}
   	
@@ -283,13 +283,8 @@ define('ConversationManager', ['jquery', 'YSDEventTarget', 'ysdhtmleditor', 'YSD
     
     this.format_sender_url = function(sender) { /* Format the sender */
     
-      <% if options.mail_include_sender_url %> 
-        var sender_url = "<%= options.mail_sender_url%>".replace('{sender}', sender);
-        return '<a href="' + sender_url + '" target="_blank">' + sender + '</a>';
-      <%else%> 
-        return sender; 
-      <%end%>
-    
+      return '<a href="/profile/' + sender.address + '" target="_blank">' + (sender.full_name || sender.address) + '</a>';
+
     }
   
     this.format_message = function(message) { /* Format the message */

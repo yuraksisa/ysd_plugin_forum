@@ -1,3 +1,9 @@
 forum_admin_menu:
   forum_menu: Foros
   forum_management: Foro
+forum_conversation:
+  new_thread: Nou tema
+  table:
+    topic: Tema
+    replies: Respostes
+    last_publisher: Última resposta
