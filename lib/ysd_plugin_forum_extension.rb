@@ -21,7 +21,7 @@ module Huasi
       
       menu_items = [{:path => '/cms/forums',
                      :options => {:title => app.t.forum_admin_menu.forum_management,
-                                  :link_route => "/forum-management",
+                                  :link_route => "/admin/forums",
                                   :description => 'The forum admin tools to create and modify the forums.',
                                   :module => :forum,
                                   :weight => 3}}]      
@@ -38,8 +38,8 @@ module Huasi
     #
     def routes(context={})
     
-      routes = [{:path => '/forum-management',
-                 :regular_expression => /^\/forum-management/,
+      routes = [{:path => '/admin/forums',
+                 :regular_expression => /^\/admin\/forums/,
                  :title => 'Forums',
                  :description => 'The forum admin tools to create and modify the forums',
                  :fit => 1,

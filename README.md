@@ -13,7 +13,7 @@ Just include the gem dependency in your Gemfile and run bundle update
 gem "ysd_plugin_forum"
 ```
 
-A new menu option, /forum-management, will be accesible in the content manager 
+A new menu option, /admin/forums, will be accesible in the content manager 
 menu.
 
 A new route, /forum ,will be accesible. It shows the forum that have been 

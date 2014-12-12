@@ -8,7 +8,7 @@ module Sinatra
         #
         # Forums management page
         #
-        app.get "/forum-management" do
+        app.get "/admin/forums" do
           load_page :forum_management
         end
         

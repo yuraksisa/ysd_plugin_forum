@@ -37,7 +37,7 @@ define('ConversationManager', ['jquery', 'YSDEventTarget', 'ysdhtmleditor', 'YSD
   		
   	   $.ajax({
   	   	       type: 'GET',
-  	   	       url : '/mail/conversation/'+this.conversation_summary.conversation_id,
+  	   	       url : '/api/mail/conversation/'+this.conversation_summary.conversation_id,
   	   	       contentType: 'application/json; charset=utf-8',
   		         dataType : 'json',
   		         cache: false,
@@ -61,7 +61,7 @@ define('ConversationManager', ['jquery', 'YSDEventTarget', 'ysdhtmleditor', 'YSD
   		
   		$.ajax( {
   			type   : 'POST',
-  			url    : '/mail/message',
+  			url    : '/api/mail/message',
   			data   : json_request,
   			data_type : 'application/json; charset=utf-8',  			
   			content_type : 'json',

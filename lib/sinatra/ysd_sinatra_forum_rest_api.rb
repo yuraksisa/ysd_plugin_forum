@@ -13,7 +13,7 @@ module Sinatra
         #
         # Retrive all forums (GET)
         #
-        app.get "/forums" do
+        app.get "/api/forums" do
         
           data=MailDataSystem::MailBox.find_mailboxes_by_type(:forum)
   
@@ -24,7 +24,7 @@ module Sinatra
         #
         # Retrieve forums (POST)
         #
-        ["/forums","/forums/page/:page"].each do |path|
+        ["/api/forums","/api/forums/page/:page"].each do |path|
           app.post path do
           
             data  = MailDataSystem::MailBox.find_mailboxes_by_type(:forum)
@@ -40,7 +40,7 @@ module Sinatra
         #
         # Create a new forum
         #
-        app.post "/forum" do
+        app.post "/api/forum" do
                   
           request.body.rewind
           forum_request = JSON.parse(URI.unescape(request.body.read))
@@ -56,7 +56,7 @@ module Sinatra
         #
         # Updates a forum
         #
-        app.put "/forum" do
+        app.put "/api/forum" do
                 
           request.body.rewind
           forum_request = JSON.parse(URI.unescape(request.body.read))
@@ -72,9 +72,9 @@ module Sinatra
         end
         
         #
-        # Deletes a external service account
+        # Deletes a forum
         #
-        app.delete "/forum" do
+        app.delete "/api/forum" do
         
         end
       
